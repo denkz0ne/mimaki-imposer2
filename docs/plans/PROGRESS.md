@@ -16,3 +16,6 @@
 - Complete: stable branch and v2.4 work branch created.
 - Complete: exact blob hashes checked for all six source files.
 - Baseline stays unchanged throughout the v2.4 branch.
+- Vector placement extracted to `src/vba/modMimakiPlacementVector.bas`; TIFF branch remains direct to stable processor.
+- Header/version metadata corrected to v2.4.0 / 2026-10-02.
+- Static Python contract tests added; CorelDRAW 2026 compile/runtime matrix is still pending on the target host.

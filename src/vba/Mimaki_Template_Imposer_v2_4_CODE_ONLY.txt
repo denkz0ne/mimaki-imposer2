@@ -1,3 +1,4 @@
+' CODE-ONLY export of Mimaki_Template_Imposer_v2_4.bas
 Option Explicit
 
 ' Mimaki template imposition macro for CorelDRAW 2026
