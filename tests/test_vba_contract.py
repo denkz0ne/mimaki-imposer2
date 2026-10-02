@@ -10,6 +10,7 @@ class VbaPlacementBoundaryTests(unittest.TestCase):
     def setUpClass(cls):
         cls.core = (VBA / "Mimaki_Template_Imposer_v2_4.bas").read_text(encoding="utf-8")
         cls.vector = (VBA / "modMimakiPlacementVector.bas").read_text(encoding="utf-8")
+        cls.vector_export = (VBA / "modMimakiPlacementVector_CODE_ONLY.txt").read_text(encoding="utf-8")
 
     def test_tiff_route_stays_on_stable_processor(self):
         self.assertIn("PlaceSourceRangeIntoSlot(srcDoc, outDoc, printRange, outPageIndex, slot, inputOrientation, PRESERVE_SOURCE_PAGE_OFFSET, True)", self.core)
@@ -36,6 +37,11 @@ class VbaPlacementBoundaryTests(unittest.TestCase):
         self.assertIsNotNone(run_handler)
         self.assertRegex(run_handler.group(1), r"(?im)^\s*Dim preserveVector As Boolean\s*$")
         self.assertRegex(run_handler.group(1), r"(?im)^\s*preserveVector = chkPreserveVector.Value\s*$")
+
+    def test_vector_function_returns_through_its_declared_name(self):
+        self.assertIn("Set MimakiV24_PlaceVectorPrintRangeIntoSlot = pastedShape", self.vector)
+        self.assertNotIn("Set PlaceVectorPrintRangeIntoSlot = pastedShape", self.vector)
+        self.assertTrue(self.vector_export.replace("\\r\\n", "\\n").endswith(self.vector.replace("\\r\\n", "\\n")))
 
     def test_vector_layers_remain_separately_placed_and_cleaned(self):
         self.assertIn("BuildSourceLayerRange(srcDoc, srcRange, sourceLayerName)", self.vector)
