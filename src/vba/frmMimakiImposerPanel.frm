@@ -201,6 +201,7 @@ Private Sub BuildUi()
     chkOpenExisting.Top = 50
     chkOpenExisting.Width = 144
     chkOpenExisting.ControlTipText = "Ak vystup uz existuje, pokracovat v nom namiesto vytvorenia novej kopie."
+    chkOpenExisting.ControlTipText = "Ak vystup uz existuje, pokracovat v nom namiesto vytvorenia novej kopie. Vektorovy rezim vzdy vytvori novy subor."
     Set chkPreserveVector = fraOutput.Controls.Add("Forms.CheckBox.1", "chkPreserveVector", True)
     chkPreserveVector.Caption = "Zachovat vektor"
     chkPreserveVector.Left = 160
@@ -1233,6 +1234,7 @@ End Function
 Private Sub LoadVectorSetting(ByVal layoutName As String)
     If chkPreserveVector Is Nothing Then Exit Sub
     chkPreserveVector.Value = StringToBool(GetSetting(SETTINGS_APP, "LayoutOptions", VectorSettingKey(layoutName), "0"), False)
+    UpdateVectorModeUi
 End Sub
 
 Private Sub SaveVectorSetting(ByVal layoutName As String)
@@ -1240,9 +1242,15 @@ Private Sub SaveVectorSetting(ByVal layoutName As String)
     SaveSetting SETTINGS_APP, "LayoutOptions", VectorSettingKey(layoutName), BoolToString(chkPreserveVector.Value)
 End Sub
 
+Private Sub UpdateVectorModeUi()
+    If chkPreserveVector Is Nothing Or chkOpenExisting Is Nothing Then Exit Sub
+    chkOpenExisting.Enabled = Not chkPreserveVector.Value
+End Sub
+
 Private Sub chkPreserveVector_Click()
     If mUpdating Then Exit Sub
     SaveVectorSetting Trim$(cboLayout.Value)
+    UpdateVectorModeUi
 End Sub
 
 Private Sub SelectComboValue(ByVal cbo As MSForms.ComboBox, ByVal wantedValue As String)
