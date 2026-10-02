@@ -1,0 +1,85 @@
+MIMAKI IMPOSER v2.3 STABLE - import notes
+
+Status:
+- Current script version: v2.3.16, generated 2026-08-12.
+- Stable local baseline approved on 2026-08-11 as v2.3.9.
+- Use stable snapshot STABLE_v2_3_9_2026-08-11 as the fallback production version while further development continues separately.
+- Next development target remains v2.4+.
+
+Import / replace in Corel:
+1. Main VBA module: Mimaki_Template_Imposer_v2_3.bas
+2. UserForm: frmMimakiImposerPanel.frm
+
+Public macro names intentionally stay MimakiV21_* so existing toolbar buttons/shortcuts can keep working after replacing the old Module1 code. The UserForm class is now version-neutral: frmMimakiImposerPanel.
+
+Stable build summary:
+- The imposition engine now always uses a temp-file workflow instead of cross-document clipboard paste.
+- HOTFIX 2026-08-11 v2.3.2: restored from the last stable reference build and removed the broken "Zachovat vektor" development branch.
+- HOTFIX 2026-08-11 v2.3.2: output CDR is saved automatically beside the source CDR; if the source has no path, the configured default output folder is used.
+- HOTFIX 2026-08-11 v2.3.2: P/Z workflows are available only for card layouts. Other products use KOPIE or single-sided STRANY.
+- HOTFIX 2026-08-11 v2.3.2: F3 card helper remains a card-only page setup macro: cycles 85x54 / 54x85 mm and recreates page boundary guides.
+- HOTFIX 2026-08-11 v2.3.2: source layer names are ignored for WHITE detection; only the RDG_WHITE spot color decides what goes to the WHITE workflow.
+- HOTFIX 2026-08-11 v2.3.3: temp TIFF canvas is now calculated from each template slot geometry plus 3 mm bleed on every side. The old fixed 90x60 / 60x90 card canvas is no longer used for slot placement.
+- HOTFIX 2026-08-11 v2.3.4: panel caches the selected source objects when it opens and restores that selection before KOPIE workflows, so Corel focus changes do not randomly lose the selected artwork.
+- HOTFIX 2026-08-11 v2.3.5: changing the selected template/product now immediately refreshes workflow buttons, captions, enabled fields, and capacity estimate.
+- HOTFIX 2026-08-11 v2.3.6: product info panel now shows one-slot size from the template and the resulting artwork canvas size including 3 mm bleed on every side.
+- HOTFIX 2026-08-11 v2.3.7: source temp raster layers are cleaned before/after imposition and temp cleanup is tied to the original source page, so repeated tests do not leave MIMAKI_TEMP_RASTER objects selected in the source CDR.
+- HOTFIX 2026-08-11 v2.3.7: the panel caches real source shapes instead of a volatile ShapeRange and ignores selected internal temp/import/slot layers when restoring KOPIE selection.
+- HOTFIX 2026-08-11 v2.3.9: the output slot/template layer is moved above Print Data in the working CDR only; individual slot objects are not reordered and production PDF export still hides the template layer.
+- UI HOTFIX 2026-08-11 v2.3.10: panel icons are embedded in the UserForm code and extracted to the local TEMP folder at runtime, so Corel X7/X8 no longer depends on external icon paths for the panel.
+- HOTFIX 2026-08-12 v2.3.12: template path is now strict and uses only `S:\printstudio\zakazky\.VelFo\mimaki_sablonatlac.cdr`; saved registry TemplatePath values and legacy `_2026` fallbacks are ignored.
+- HOTFIX 2026-08-12 v2.3.13: universal template loading now reads product layers whose names end with `SLOT`; only objects with outline spot color `CutContour1` are counted as slots, and opened template documents are closed without saving.
+- HOTFIX 2026-08-12 v2.3.14: KOPIE mode now defaults the piece count to the selected template capacity, so a one-piece saved setting no longer leaves the rest of the sheet empty; debug log now records slotCount/totalItems summaries.
+- UI HOTFIX 2026-08-12 v2.3.15: panel template-open button was removed and the Refresh button became a wider text button. The temporary preview-copy Open Template behavior from this version was reverted in v2.3.16.
+- HOTFIX 2026-08-12 v2.3.16: Open Template macro restored to classic behavior: it opens or activates the real template document directly.
+- HOTFIX 2026-08-10: normal print content is placed on the Print Data layer and processed through a 600 dpi CMYK TIFF temp workflow.
+- HOTFIX 2026-08-10: objects using spot color RDG_WHITE are moved to the WHITE layer and bypass the TIFF workflow, so they stay vector spot data for RasterLink.
+- HOTFIX 2026-08-10: if a page contains WHITE data, PDF export creates the normal print PDF and an additional _W PDF for the white spot layer.
+- HOTFIX 2026-08-04 09:30: temp TIFF export no longer uses CallByName/ExportEx; it now uses direct Document.ExportBitmap and ExportFilter.Finish, matching the working StickerMaster export pattern.
+- HOTFIX 2026-08-04 09:40: temp TIFF import now uses a clean MIMAKI_TEMP_IMPORT staging layer, then moves the imported shape to Print Data. The code no longer depends on ImportFilter.Finish returning a Shape.
+- HOTFIX 2026-08-04 09:40: repeated-page P/Z workflows reuse one placed prototype per output sheet and duplicate it into the remaining slots, instead of exporting/importing the same source page for every card.
+- HOTFIX 2026-08-04 09:50: bitmap temp export no longer exports a selected PowerClip frame. It builds a separate 90x60 / 60x90 temporary document with a white page-sized background, preserves source offset inside that canvas, and exports cdrCurrentPage to TIFF.
+- HOTFIX 2026-08-04 09:58: imported temp bitmap is forced back to exact canvas size before rotation/placement, so TIFF DPI interpretation cannot shrink or stretch the card on the sheet.
+- HOTFIX 2026-08-04 09:58: source page/canvas matching tolerance is wider, so 90x60-ish card working pages with helper marks use page center instead of selection bounding-box center.
+- HOTFIX 2026-08-04 10:12: source orientation is now resolved from the real selected/page artwork bounds when the source is clearly landscape or portrait. Saved UI orientation is only used for ambiguous nearly-square artwork.
+- HOTFIX 2026-08-04 10:12: temp bitmap size normalization is proportional only; the macro no longer uses independent X/Y SetSize that could distort raster art.
+- This temp TIFF workflow is now always active for normal print data, because large vector/PDF batches can freeze Corel X7/X8.
+- The older temp PDF path is left in code only as a disabled fallback; current default does not use it.
+- ExportEx(cdrPDF) is intentionally not used because it is known to fail in CorelDRAW X8.
+- The big Corel undo command group is disabled in temp-file mode to reduce memory pressure on large jobs.
+- Temporary files are written to W:\Temp\MimakiImposer and deleted after import.
+Crop / positioning:
+- Source artwork is copied through a crop canvas before imposition.
+- Every product slot uses the real slot geometry from the template plus 3 mm bleed on every side as the crop canvas.
+- PVC/card layouts use the same slot+bleed canvas logic as USB/pens/lighters; fixed 90 x 60 mm is only a low-level fallback if geometry cannot be read.
+- If the source page already looks like the crop canvas, the crop is centered on the source page.
+- If the source page is a large working page, the crop is centered on the selected/grouped artwork.
+- PowerClip is attempted with CenterInContainer=False so non-centered graphics stay non-centered inside the crop canvas.
+
+Form v2.3:
+- Main green action button uses caption Be + ChrW$(382), displayed as the short Run label in Corel.
+- P/Z workflow is implemented in the panel: KOPIE, P ZZZ, PPP Z, PZ PZ.
+- If the source document has one page, the panel automatically chooses copies mode and range 1.
+- If the source document has multiple pages, the panel fills range 1-N and keeps the last P/Z workflow; if the last mode was KOPIE, it defaults to PZ PZ.
+
+Naming unchanged:
+- Output CDR name: [ID]_[template]_[P/Z].cdr
+- PDF names: [ID]_[template]_[P/Z]_p01.pdf, _p02.pdf, ...
+- KARTA/KARTY/TEMPLATE_KARTY maps to pvckarta.
+- Template layers are kept visible/non-printable/locked in working CDR and hidden from production PDF.
+
+Recommended test:
+1. Import the main module and form.
+2. Compile VBAProject.
+3. Test copies mode with normal Print Data only.
+4. Test WHITE/RDG_WHITE input and confirm that an additional _W PDF is exported when white data exists.
+5. Test all-pages mode with range 1-20, then 1-60, then the full 257.
+
+Current hotfix forces the 600 dpi temp TIFF path from W:\Temp\MimakiImposer for normal print jobs. WHITE/RDG_WHITE objects bypass this raster path and stay vector spot data.
+
+[2026-08-04 10:40:30] HOTFIX - raster deformation root cause
+- Removed obsolete temp-document/current-page TIFF export path completely.
+- Temp workflow now creates a real white CMYK slot-size PowerClip canvas with 3 mm bleed on every side, rasterizes that selected canvas at 600 dpi, then exports/imports only that bitmap.
+- This prevents Corel from stretching the artwork by visible object bounds instead of the template slot canvas.
+- Expected debug log after import: "create temp crop bitmap", "temp rasterized canvas size mm", "export selected temp bitmap", "try ExportBitmap TIFF direct".
+- The log must NOT contain: "temp document ExportBitmap TIFF current page".
