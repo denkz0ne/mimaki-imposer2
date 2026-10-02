@@ -43,6 +43,18 @@ class VbaPlacementBoundaryTests(unittest.TestCase):
         self.assertNotIn("Set PlaceVectorPrintRangeIntoSlot = pastedShape", self.vector)
         self.assertTrue(self.vector_export.replace("\\r\\n", "\\n").endswith(self.vector.replace("\\r\\n", "\\n")))
 
+    def test_vector_procedures_assign_only_to_declared_names(self):
+        pattern = re.compile(
+            r"(?im)^(Public|Private) (Sub|Function) ([A-Za-z_]\\w*)\\((.*?)\\)(?: As [A-Za-z_]\\w+)?[ \\t]*\\r?\\n([\\s\\S]*?)^End \\2\\b"
+        )
+        for match in pattern.finditer(self.vector):
+            proc_name, header, body = match.group(3), match.group(4), match.group(5)
+            declared = {proc_name.lower()}
+            declared.update(name.lower() for name in re.findall(r"\\b(?:ByVal|ByRef|Optional)\\s+([A-Za-z_]\\w+)", header, re.I))
+            declared.update(name.lower() for name in re.findall(r"(?im)^\\s*Dim\\s+([A-Za-z_]\\w+)", body))
+            for name in re.findall(r"(?im)^\\s*(?:Set\\s+)?([A-Za-z_]\\w+)\\s*=(?!=)", body):
+                self.assertIn(name.lower(), declared, f"{proc_name} assigns to undeclared name {name}")
+
     def test_vector_layers_remain_separately_placed_and_cleaned(self):
         self.assertIn("BuildSourceLayerRange(srcDoc, srcRange, sourceLayerName)", self.vector)
         self.assertIn("outLayer.Paste", self.vector)
