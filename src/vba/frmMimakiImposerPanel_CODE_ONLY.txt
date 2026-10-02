@@ -937,7 +937,6 @@ Private Function EstimatePagesFromCapacity(ByVal capacity As Long, ByVal workflo
     Dim totalItems As Long
     Dim pageCount As Long
     Dim isCardLayout As Boolean
-    Dim preserveVector As Boolean
 
     If capacity <= 0 Then Exit Function
     If startSlot < 1 Then startSlot = 1
