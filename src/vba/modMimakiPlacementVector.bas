@@ -105,7 +105,7 @@ Public Function MimakiV24_PlaceVectorPrintRangeIntoSlot(ByVal srcDoc As Document
         If AUTO_ROTATE_TO_SLOT Then appliedRotation = RotateShapeToSlotOrientation(pastedShape, slot, effectiveOrientation)
         CenterShapeOnPoint pastedShape, slot.CenterX, slot.CenterY
         If Not hasPlacedShape Then
-            Set PlaceVectorPrintRangeIntoSlot = pastedShape
+            Set MimakiV24_PlaceVectorPrintRangeIntoSlot = pastedShape
             hasPlacedShape = True
         End If
         Set pastedShape = Nothing
