@@ -32,10 +32,10 @@ class VbaPlacementBoundaryTests(unittest.TestCase):
             self.assertRegex(self.core, rf"(?im)^Public (?:Sub|Function) {name}\b", name)
 
     def test_run_handler_declares_vector_option_under_option_explicit(self):
-        run_handler = re.search(r"(?is)Private Sub cmdRun_Click\\(\\)(.*?)End Sub", (VBA / "frmMimakiImposerPanel.frm").read_text(encoding="utf-8"))
+        run_handler = re.search(r"(?is)Private Sub cmdRun_Click\(\)(.*?)End Sub", (VBA / "frmMimakiImposerPanel.frm").read_text(encoding="utf-8"))
         self.assertIsNotNone(run_handler)
-        self.assertRegex(run_handler.group(1), r"(?im)^\\s*Dim preserveVector As Boolean\\s*$")
-        self.assertRegex(run_handler.group(1), r"(?im)^\\s*preserveVector = chkPreserveVector.Value\\s*$")
+        self.assertRegex(run_handler.group(1), r"(?im)^\s*Dim preserveVector As Boolean\s*$")
+        self.assertRegex(run_handler.group(1), r"(?im)^\s*preserveVector = chkPreserveVector.Value\s*$")
 
     def test_vector_layers_remain_separately_placed_and_cleaned(self):
         self.assertIn("BuildSourceLayerRange(srcDoc, srcRange, sourceLayerName)", self.vector)
