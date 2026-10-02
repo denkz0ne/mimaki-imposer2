@@ -423,6 +423,7 @@ Public Function CreateMimakiImpositionFromSourceDocByJobIdV21(ByVal sourceDoc As
     Dim targetPath As String
     Dim openedTemplateHere As Boolean
     Dim outExists As Boolean
+    Dim createdOutputHere As Boolean
     Dim errNum As Long
     Dim errDesc As String
     Dim commandGroupStarted As Boolean
@@ -458,7 +459,11 @@ Public Function CreateMimakiImpositionFromSourceDocByJobIdV21(ByVal sourceDoc As
     targetPath = BuildTargetDocPathByJobId(srcDoc, layout.LayoutName, jobId, sideCode, outputFolder)
     outExists = FileExists(targetPath)
 
-    If openExisting And outExists Then
+    If preserveVector Then
+        If outExists Then targetPath = BuildAvailableFilePath(targetPath)
+        Set outDoc = CreateDocument
+        createdOutputHere = True
+    ElseIf openExisting And outExists Then
         Set outDoc = GetOpenDocumentByFullName(targetPath)
         If outDoc Is Nothing Then
             Set outDoc = Application.OpenDocument(targetPath)
@@ -468,6 +473,7 @@ Public Function CreateMimakiImpositionFromSourceDocByJobIdV21(ByVal sourceDoc As
             targetPath = BuildAvailableFilePath(targetPath)
         End If
         Set outDoc = CreateDocument
+        createdOutputHere = True
     End If
 
     NormalizeDocumentUnits outDoc
@@ -505,6 +511,7 @@ CleanUp:
         If Not outDoc Is Nothing Then outDoc.Activate
         ActiveDocument.EndCommandGroup
     End If
+    If errNum <> 0 And preserveVector And createdOutputHere Then DiscardNewVectorOutput outDoc
     If openedTemplateHere Then CloseDocumentWithoutSaving tplDoc
     On Error GoTo 0
     If errNum <> 0 Then Err.Raise errNum, "CreateMimakiImpositionFromSourceDocByJobIdV21", errDesc
@@ -524,6 +531,10 @@ Public Function CreateMimakiPzWorkflowFromSourceDocByJobIdV23(ByVal sourceDoc As
     Dim backPages() As Long
     Dim frontDoc As Document
     Dim backDoc As Document
+    Dim errNum As Long
+    Dim errDesc As String
+
+    On Error GoTo EH
 
     If sourceDoc Is Nothing Then
         Err.Raise vbObjectError + 400, "CreateMimakiPzWorkflowFromSourceDocByJobIdV23", "No source document is open."
@@ -558,6 +569,19 @@ Public Function CreateMimakiPzWorkflowFromSourceDocByJobIdV23(ByVal sourceDoc As
     If Not frontDoc Is Nothing Then Set gMimakiV21LastOutputDoc = frontDoc
     If Not backDoc Is Nothing Then Set gMimakiV21LastOutputDoc = backDoc
     Set CreateMimakiPzWorkflowFromSourceDocByJobIdV23 = backDoc
+    Exit Function
+
+EH:
+    errNum = Err.Number
+    errDesc = Err.Description
+    On Error Resume Next
+    If preserveVector Then
+        If Not backDoc Is Nothing Then DiscardNewVectorOutput backDoc
+        If Not frontDoc Is Nothing Then DiscardNewVectorOutput frontDoc
+    End If
+    On Error GoTo 0
+    If errNum = 0 Then errNum = vbObjectError + 587
+    Err.Raise errNum, "CreateMimakiPzWorkflowFromSourceDocByJobIdV23", errDesc
 End Function
 
 Private Function CreateMimakiImpositionFromPageListByJobIdV23(ByVal sourceDoc As Document, ByVal layoutName As String, ByVal sideCode As String, ByVal jobId As String, ByVal startSlot As Long, ByRef sourcePages() As Long, ByVal openExisting As Boolean, Optional ByVal inputOrientation As Long = mki21IoAuto, Optional ByVal outputFolder As String = "", Optional ByVal rasterizeSource300 As Boolean = False, Optional ByVal preserveVector As Boolean = False) As Document
@@ -571,6 +595,7 @@ Private Function CreateMimakiImpositionFromPageListByJobIdV23(ByVal sourceDoc As
     Dim targetPath As String
     Dim openedTemplateHere As Boolean
     Dim outExists As Boolean
+    Dim createdOutputHere As Boolean
     Dim errNum As Long
     Dim errDesc As String
     Dim commandGroupStarted As Boolean
@@ -601,12 +626,17 @@ Private Function CreateMimakiImpositionFromPageListByJobIdV23(ByVal sourceDoc As
     targetPath = BuildTargetDocPathByJobId(srcDoc, layout.LayoutName, jobId, sideCode, outputFolder)
     outExists = FileExists(targetPath)
 
-    If openExisting And outExists Then
+    If preserveVector Then
+        If outExists Then targetPath = BuildAvailableFilePath(targetPath)
+        Set outDoc = CreateDocument
+        createdOutputHere = True
+    ElseIf openExisting And outExists Then
         Set outDoc = GetOpenDocumentByFullName(targetPath)
         If outDoc Is Nothing Then Set outDoc = Application.OpenDocument(targetPath)
     Else
         If outExists And Not openExisting Then targetPath = BuildAvailableFilePath(targetPath)
         Set outDoc = CreateDocument
+        createdOutputHere = True
     End If
 
     NormalizeDocumentUnits outDoc
@@ -643,6 +673,7 @@ CleanUp:
         If Not outDoc Is Nothing Then outDoc.Activate
         ActiveDocument.EndCommandGroup
     End If
+    If errNum <> 0 And preserveVector And createdOutputHere Then DiscardNewVectorOutput outDoc
     If openedTemplateHere Then CloseDocumentWithoutSaving tplDoc
     On Error GoTo 0
     If errNum <> 0 Then Err.Raise errNum, "CreateMimakiImpositionFromPageListByJobIdV23", errDesc
@@ -3692,6 +3723,32 @@ Private Sub MimakiShowExportDialog(ByVal filter As cdrFilter, ByVal ext As Strin
     Else
         ex.Finish
     End If
+End Sub
+
+Private Sub DiscardNewVectorOutput(ByVal outputDoc As Document)
+    Dim outputPath As String
+    Dim pdfBasePath As String
+    Dim pageIndex As Long
+    Dim pagePdfPath As String
+    Dim whitePdfPath As String
+
+    If outputDoc Is Nothing Then Exit Sub
+    On Error Resume Next
+    outputPath = Trim$(outputDoc.FullFileName)
+    If Len(outputPath) > 0 Then
+        pdfBasePath = BuildDefaultExportPath(outputDoc, ".pdf")
+        For pageIndex = 1 To outputDoc.Pages.Count
+            pagePdfPath = BuildSinglePagePdfPath(pdfBasePath, pageIndex)
+            If FileExists(pagePdfPath) Then Kill pagePdfPath
+            If PageHasWhiteContent(outputDoc.Pages(pageIndex)) Then
+                whitePdfPath = BuildWhiteSinglePagePdfPath(pdfBasePath, pageIndex)
+                If FileExists(whitePdfPath) Then Kill whitePdfPath
+            End If
+        Next pageIndex
+    End If
+    CloseDocumentWithoutSaving outputDoc
+    If Len(outputPath) > 0 And FileExists(outputPath) Then Kill outputPath
+    On Error GoTo 0
 End Sub
 
 Private Function RemoveFileExtension(ByVal filePath As String) As String
