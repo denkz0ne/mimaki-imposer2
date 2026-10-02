@@ -2,7 +2,7 @@
 
 ## Status
 
-- Stage: design specification for review
+- Stage: approved; implementation in progress
 - Target host: CorelDRAW Graphics Suite 2026, API v27.2
 - Production baseline: Mimaki Imposer v2.3.16 (2026-08-12)
 - Repository: https://github.com/denkz0ne/mimaki-imposer2
