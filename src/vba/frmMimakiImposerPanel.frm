@@ -1595,6 +1595,7 @@ Private Sub cmdRun_Click()
     Dim firstPage As Long
     Dim lastPage As Long
     Dim isCardLayout As Boolean
+    Dim preserveVector As Boolean
 
     On Error GoTo EH
 
