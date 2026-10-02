@@ -1223,7 +1223,7 @@ Private Function VectorSettingKey(ByVal layoutName As String) As String
     Dim keyName As String
 
     keyName = "Vector_" & Trim$(layoutName)
-    keyName = Replace(keyName, "\\", "_")
+    keyName = Replace(keyName, "\", "_")
     keyName = Replace(keyName, "/", "_")
     keyName = Replace(keyName, ":", "_")
     If Len(keyName) > 255 Then keyName = Left$(keyName, 255)
