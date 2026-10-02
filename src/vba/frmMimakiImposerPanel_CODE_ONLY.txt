@@ -1,4 +1,3 @@
-' CODE-ONLY export of frmMimakiImposerPanel.frm; starts at the first code section.
 Option Explicit
 
 Private WithEvents cboLayout As MSForms.ComboBox
