@@ -960,7 +960,7 @@ Private Sub BuildImposedDocument(ByVal srcDoc As Document, ByVal outDoc As Docum
                 End If
             Else
                 Set placedWhite = Nothing
-                PlaceSourceContentIntoSlotSet srcDoc, outDoc, srcRange, outPageIndex, currentSlot, inputOrientation, placed, placedWhite
+                PlaceSourceContentIntoSlotSet srcDoc, outDoc, srcRange, outPageIndex, currentSlot, inputOrientation, placed, placedWhite, preserveVector
             End If
             If (itemIndex Mod 5) = 0 Then DoEvents
         Next itemIndex
@@ -977,7 +977,7 @@ Private Sub BuildImposedDocument(ByVal srcDoc As Document, ByVal outDoc As Docum
                 slotIndex = ((slotNumber - 1) Mod layout.SlotCount) + 1
                 currentSlot = slots(slotIndex)
                 Set placedWhite = Nothing
-                PlaceSourceContentIntoSlotSet srcDoc, outDoc, srcRange, outPageIndex, currentSlot, inputOrientation, placed, placedWhite
+                PlaceSourceContentIntoSlotSet srcDoc, outDoc, srcRange, outPageIndex, currentSlot, inputOrientation, placed, placedWhite, preserveVector
                 If (pageItemCount Mod 5) = 0 Then DoEvents
             End If
         Next itemIndex
@@ -1045,7 +1045,7 @@ Private Sub BuildImposedDocumentFromPageList(ByVal srcDoc As Document, ByVal out
             DuplicatePlacedShapeIntoLayerSlot pageWhitePrototype(outPageIndex), pagePrototypeSlot(outPageIndex), currentSlot
         Else
             Set placedWhite = Nothing
-            PlaceSourceContentIntoSlotSet srcDoc, outDoc, srcRange, outPageIndex, currentSlot, inputOrientation, placed, placedWhite
+            PlaceSourceContentIntoSlotSet srcDoc, outDoc, srcRange, outPageIndex, currentSlot, inputOrientation, placed, placedWhite, preserveVector
             Set pagePrototype(outPageIndex) = placed
             Set pageWhitePrototype(outPageIndex) = placedWhite
             pagePrototypeSlot(outPageIndex) = currentSlot
@@ -1202,7 +1202,10 @@ Private Function PlaceVectorPrintRangeIntoSlot(ByVal srcDoc As Document, ByVal o
     For Each layerItem In sourceLayerNames
         sourceLayerName = CStr(layerItem)
         Set layerRange = BuildSourceLayerRange(srcDoc, srcRange, sourceLayerName)
-        If layerRange Is Nothing Or layerRange.Count = 0 Then
+        If layerRange Is Nothing Then
+            Err.Raise vbObjectError + 581, "PlaceVectorPrintRangeIntoSlot", "Could not capture source layer: " & sourceLayerName
+        End If
+        If layerRange.Count = 0 Then
             Err.Raise vbObjectError + 581, "PlaceVectorPrintRangeIntoSlot", "Could not capture source layer: " & sourceLayerName
         End If
 
@@ -1824,7 +1827,10 @@ Private Function RasterizePlacedShapeForProduction(ByVal sh As Shape) As Shape
     On Error GoTo EH
     sh.CreateSelection
     Set sr = ActiveSelectionRange
-    If sr Is Nothing Or sr.Count = 0 Then
+    If sr Is Nothing Then
+        Err.Raise vbObjectError + 504, "RasterizePlacedShapeForProduction", "Raster selection is empty."
+    End If
+    If sr.Count = 0 Then
         Err.Raise vbObjectError + 504, "RasterizePlacedShapeForProduction", "Raster selection is empty."
     End If
 
