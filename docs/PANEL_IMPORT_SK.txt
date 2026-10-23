@@ -1,0 +1,32 @@
+MIMAKI IMPOSER - PANEL UPRAVITELNY VO VBA EDITORE
+Panel: 2026-10-23 | Podklad: vyvojova verzia v2.4.0
+
+Tento balicek obsahuje iba novy panel. Rozkladacie moduly nemenit.
+
+SUBORY
+frmMimakiImposerPanel.frm - formular a jeho udalosti
+frmMimakiImposerPanel.frx - prvky, rozmery, farby a zabudovane ikony
+frmMimakiImposerPanel_CODE_ONLY.txt - iba kod udalosti bez hlavicky
+
+IMPORT NA INOM PC
+1. Vo VBA editore najprv exportovat povodny formular ako zalohu.
+2. Odstranit stary frmMimakiImposerPanel z projektu s imposerom.
+3. Ponechat FRM a FRX z tohto balicka v rovnakom priecinku.
+4. File > Import File: vybrat frmMimakiImposerPanel.frm.
+5. Debug > Compile; ulozit GMS.
+
+Tento panel potrebuje existujuce moduly imposeru v2.4 v rovnakom projekte.
+Nazvy existujucich akcii panela a toolbarov zostavaju rovnake.
+
+RUCNA UPRAVA
+V Project Explorer otvorit Forms > frmMimakiImposerPanel.
+Shift+F7 otvori navrhar. Prvky sa daju posuvat a zvacsovat mysou.
+F4 otvori Properties. Nemenit internu vlastnost (Name).
+Polia txtCopies a txtPageRange su na rovnakom mieste: vyberat ich
+podla mena v Properties. Viditelnost prepina kod podla rezimu.
+Po uprave ulozit GMS. Pri spusteni sa poloha ani velkost neprepisuje.
+
+Samotny TXT subor nevytvori prvky formulara. Pouzit ho iba na upravu
+kodu formulara, ktory uz obsahuje nove prvky z FRM/FRX.
+
+Nie je potrebna instalacia SDK, .NET ani samostatny priecinok ikon.
