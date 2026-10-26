@@ -1,0 +1,402 @@
+[
+    {
+        "name":  "lblStepTemplate",
+        "type":  "Label",
+        "left":  12,
+        "top":  10,
+        "width":  15,
+        "height":  14
+    },
+    {
+        "name":  "lblTemplateHeading",
+        "type":  "Label",
+        "left":  29,
+        "top":  10,
+        "width":  230,
+        "height":  14
+    },
+    {
+        "name":  "cboLayout",
+        "type":  "ComboBox",
+        "left":  12,
+        "top":  31,
+        "width":  316,
+        "height":  22
+    },
+    {
+        "name":  "cmdRefresh",
+        "type":  "CommandButton",
+        "left":  334,
+        "top":  31,
+        "width":  62,
+        "height":  22
+    },
+    {
+        "name":  "lblMetricsBackground",
+        "type":  "Label",
+        "left":  12,
+        "top":  61,
+        "width":  384,
+        "height":  42
+    },
+    {
+        "name":  "lblCapacityHeading",
+        "type":  "Label",
+        "left":  20,
+        "top":  67,
+        "width":  91,
+        "height":  12
+    },
+    {
+        "name":  "lblCapacity",
+        "type":  "Label",
+        "left":  20,
+        "top":  81,
+        "width":  91,
+        "height":  15
+    },
+    {
+        "name":  "lblSlotHeading",
+        "type":  "Label",
+        "left":  127,
+        "top":  67,
+        "width":  104,
+        "height":  12
+    },
+    {
+        "name":  "lblSlotSize",
+        "type":  "Label",
+        "left":  127,
+        "top":  81,
+        "width":  104,
+        "height":  15
+    },
+    {
+        "name":  "lblGraphicHeading",
+        "type":  "Label",
+        "left":  250,
+        "top":  67,
+        "width":  138,
+        "height":  12
+    },
+    {
+        "name":  "lblGraphicSize",
+        "type":  "Label",
+        "left":  250,
+        "top":  81,
+        "width":  138,
+        "height":  15
+    },
+    {
+        "name":  "lblMetricRule118",
+        "type":  "Label",
+        "left":  118,
+        "top":  68,
+        "width":  0.75,
+        "height":  28
+    },
+    {
+        "name":  "lblMetricRule241",
+        "type":  "Label",
+        "left":  241,
+        "top":  68,
+        "width":  0.75,
+        "height":  28
+    },
+    {
+        "name":  "lblTemplateRule",
+        "type":  "Label",
+        "left":  12,
+        "top":  115,
+        "width":  384,
+        "height":  0.75
+    },
+    {
+        "name":  "lblStepInput",
+        "type":  "Label",
+        "left":  12,
+        "top":  128,
+        "width":  15,
+        "height":  14
+    },
+    {
+        "name":  "lblInputHeading",
+        "type":  "Label",
+        "left":  29,
+        "top":  128,
+        "width":  230,
+        "height":  14
+    },
+    {
+        "name":  "optCopies",
+        "type":  "ToggleButton",
+        "left":  12,
+        "top":  150,
+        "width":  91.5,
+        "height":  25
+    },
+    {
+        "name":  "optAllPages",
+        "type":  "ToggleButton",
+        "left":  109.5,
+        "top":  150,
+        "width":  91.5,
+        "height":  25
+    },
+    {
+        "name":  "optCommonBackLast",
+        "type":  "ToggleButton",
+        "left":  207,
+        "top":  150,
+        "width":  91.5,
+        "height":  25
+    },
+    {
+        "name":  "optAlternatingPairs",
+        "type":  "ToggleButton",
+        "left":  304.5,
+        "top":  150,
+        "width":  91.5,
+        "height":  25
+    },
+    {
+        "name":  "lblModeHelp",
+        "type":  "Label",
+        "left":  12,
+        "top":  183,
+        "width":  384,
+        "height":  20
+    },
+    {
+        "name":  "lblCopies",
+        "type":  "Label",
+        "left":  12,
+        "top":  211,
+        "width":  184,
+        "height":  13
+    },
+    {
+        "name":  "lblPageRange",
+        "type":  "Label",
+        "left":  12,
+        "top":  211,
+        "width":  184,
+        "height":  13
+    },
+    {
+        "name":  "txtCopies",
+        "type":  "TextBox",
+        "left":  12,
+        "top":  228,
+        "width":  184,
+        "height":  22
+    },
+    {
+        "name":  "txtPageRange",
+        "type":  "TextBox",
+        "left":  12,
+        "top":  228,
+        "width":  184,
+        "height":  22
+    },
+    {
+        "name":  "lblOrientation",
+        "type":  "Label",
+        "left":  208,
+        "top":  211,
+        "width":  188,
+        "height":  13
+    },
+    {
+        "name":  "tglLandscape",
+        "type":  "ToggleButton",
+        "left":  208,
+        "top":  228,
+        "width":  91,
+        "height":  22
+    },
+    {
+        "name":  "tglPortrait",
+        "type":  "ToggleButton",
+        "left":  305,
+        "top":  228,
+        "width":  91,
+        "height":  22
+    },
+    {
+        "name":  "chkPreserveVector",
+        "type":  "CheckBox",
+        "left":  12,
+        "top":  263,
+        "width":  157,
+        "height":  16
+    },
+    {
+        "name":  "lblProcessing",
+        "type":  "Label",
+        "left":  175,
+        "top":  265,
+        "width":  221,
+        "height":  13
+    },
+    {
+        "name":  "lblInputRule",
+        "type":  "Label",
+        "left":  12,
+        "top":  291,
+        "width":  384,
+        "height":  0.75
+    },
+    {
+        "name":  "lblStepOutput",
+        "type":  "Label",
+        "left":  12,
+        "top":  304,
+        "width":  15,
+        "height":  14
+    },
+    {
+        "name":  "lblOutputHeading",
+        "type":  "Label",
+        "left":  29,
+        "top":  304,
+        "width":  230,
+        "height":  14
+    },
+    {
+        "name":  "lblDocNumber",
+        "type":  "Label",
+        "left":  12,
+        "top":  327,
+        "width":  212,
+        "height":  13
+    },
+    {
+        "name":  "lblStartSlot",
+        "type":  "Label",
+        "left":  236,
+        "top":  327,
+        "width":  70,
+        "height":  13
+    },
+    {
+        "name":  "lblSide",
+        "type":  "Label",
+        "left":  310,
+        "top":  327,
+        "width":  86,
+        "height":  13
+    },
+    {
+        "name":  "txtDocNumber",
+        "type":  "TextBox",
+        "left":  12,
+        "top":  344,
+        "width":  212,
+        "height":  22
+    },
+    {
+        "name":  "txtStartSlot",
+        "type":  "TextBox",
+        "left":  236,
+        "top":  344,
+        "width":  62,
+        "height":  22
+    },
+    {
+        "name":  "tglFront",
+        "type":  "ToggleButton",
+        "left":  310,
+        "top":  344,
+        "width":  40,
+        "height":  22
+    },
+    {
+        "name":  "tglBack",
+        "type":  "ToggleButton",
+        "left":  356,
+        "top":  344,
+        "width":  40,
+        "height":  22
+    },
+    {
+        "name":  "chkOpenExisting",
+        "type":  "CheckBox",
+        "left":  12,
+        "top":  378,
+        "width":  225,
+        "height":  16
+    },
+    {
+        "name":  "lblOutputFolder",
+        "type":  "Label",
+        "left":  12,
+        "top":  404,
+        "width":  330,
+        "height":  13
+    },
+    {
+        "name":  "txtOutputFolder",
+        "type":  "TextBox",
+        "left":  12,
+        "top":  421,
+        "width":  351,
+        "height":  22
+    },
+    {
+        "name":  "cmdOutputFolder",
+        "type":  "CommandButton",
+        "left":  369,
+        "top":  421,
+        "width":  27,
+        "height":  22
+    },
+    {
+        "name":  "lblOutputHelp",
+        "type":  "Label",
+        "left":  12,
+        "top":  449,
+        "width":  384,
+        "height":  14
+    },
+    {
+        "name":  "lblOutputRule",
+        "type":  "Label",
+        "left":  12,
+        "top":  471,
+        "width":  384,
+        "height":  0.75
+    },
+    {
+        "name":  "lblLayoutInfo",
+        "type":  "Label",
+        "left":  12,
+        "top":  482,
+        "width":  384,
+        "height":  13
+    },
+    {
+        "name":  "lblStatus",
+        "type":  "Label",
+        "left":  12,
+        "top":  497,
+        "width":  384,
+        "height":  14
+    },
+    {
+        "name":  "cmdRun",
+        "type":  "CommandButton",
+        "left":  12,
+        "top":  520,
+        "width":  298,
+        "height":  28
+    },
+    {
+        "name":  "cmdClose",
+        "type":  "CommandButton",
+        "left":  319,
+        "top":  520,
+        "width":  77,
+        "height":  28
+    }
+]
