@@ -1,0 +1,156 @@
+Option Explicit
+
+' Isolated vector-placement path for Mimaki Imposer v2.4.
+' The established TIFF route remains in Mimaki_Template_Imposer_v2_4.bas.
+
+Public Function MimakiV24_PlaceVectorPrintRangeIntoSlot(ByVal srcDoc As Document, ByVal outDoc As Document, ByVal srcRange As ShapeRange, ByVal outPageIndex As Long, ByRef slot As TSlotInfo, ByVal inputOrientation As Long) As Shape
+    Dim sourceLayerNames As Collection
+    Dim layerItem As Variant
+    Dim sh As Shape
+    Dim layerRange As ShapeRange
+    Dim tempShape As Shape
+    Dim pastedShape As Shape
+    Dim pastedObject As Object
+    Dim outPage As Page
+    Dim outLayer As Layer
+    Dim slotLayer As Layer
+    Dim candidateLayer As Layer
+    Dim sourceLayerName As String
+    Dim outputLayerName As String
+    Dim canvasWidth As Double
+    Dim canvasHeight As Double
+    Dim cropCenterX As Double
+    Dim cropCenterY As Double
+    Dim effectiveOrientation As Long
+    Dim appliedRotation As Double
+    Dim hasPlacedShape As Boolean
+    Dim localErr As Long
+    Dim localDesc As String
+
+    If srcRange Is Nothing Then Exit Function
+    If srcRange.Count <= 0 Then Exit Function
+    On Error GoTo EH
+
+    srcDoc.Activate
+    effectiveOrientation = ResolveEffectiveInputOrientation(inputOrientation, srcRange)
+    GetSourceCanvasSizeForSlot slot, effectiveOrientation, canvasWidth, canvasHeight
+    GetSourceCropCenter srcDoc.ActivePage, srcRange, canvasWidth, canvasHeight, cropCenterX, cropCenterY
+    Set sourceLayerNames = New Collection
+
+    For Each sh In srcRange.Shapes
+        If IsSourceCandidateShape(sh) Then
+            sourceLayerName = Trim$(sh.Layer.Name)
+            If Len(sourceLayerName) > 0 Then
+                On Error Resume Next
+                sourceLayerNames.Add sourceLayerName, UCase$(sourceLayerName)
+                Err.Clear
+                On Error GoTo EH
+            End If
+        End If
+    Next sh
+
+    If sourceLayerNames.Count = 0 Then
+        Err.Raise vbObjectError + 580, "PlaceVectorPrintRangeIntoSlot", "No eligible source layers were found."
+    End If
+
+    For Each layerItem In sourceLayerNames
+        sourceLayerName = CStr(layerItem)
+        Set layerRange = BuildSourceLayerRange(srcDoc, srcRange, sourceLayerName)
+        If layerRange Is Nothing Then
+            Err.Raise vbObjectError + 581, "PlaceVectorPrintRangeIntoSlot", "Could not capture source layer: " & sourceLayerName
+        End If
+        If layerRange.Count = 0 Then
+            Err.Raise vbObjectError + 581, "PlaceVectorPrintRangeIntoSlot", "Could not capture source layer: " & sourceLayerName
+        End If
+
+        Set tempShape = CreateTemporarySourceCanvasCopy(layerRange, srcDoc.ActivePage, canvasWidth, canvasHeight, False, True, cropCenterX, cropCenterY)
+        If tempShape Is Nothing Then
+            Err.Raise vbObjectError + 582, "PlaceVectorPrintRangeIntoSlot", "Could not create the vector crop canvas for layer: " & sourceLayerName
+        End If
+
+        tempShape.Copy
+        tempShape.Delete
+        Set tempShape = Nothing
+
+        EnsureDocumentPages outDoc, outPageIndex, outDoc.Pages(1).SizeWidth, outDoc.Pages(1).SizeHeight
+        Set outPage = outDoc.Pages(outPageIndex)
+        outputLayerName = sourceLayerName
+        If StrComp(outputLayerName, WHITE_LAYER_NAME, vbTextCompare) = 0 Then outputLayerName = "WHITE - Artwork"
+        Set outLayer = EnsureLayer(outPage, outputLayerName)
+        outLayer.Visible = True
+        outLayer.Printable = True
+        outLayer.Editable = True
+
+        Set slotLayer = Nothing
+        For Each candidateLayer In outPage.Layers
+            If IsSlotsLayerName(candidateLayer.Name) Then
+                Set slotLayer = candidateLayer
+                Exit For
+            End If
+        Next candidateLayer
+        If Not slotLayer Is Nothing Then MoveLayerAboveReference slotLayer, outLayer
+
+        outDoc.Activate
+        outPage.Activate
+        outLayer.Activate
+        Set pastedObject = outLayer.Paste
+        If pastedObject Is Nothing Then
+            Err.Raise vbObjectError + 583, "PlaceVectorPrintRangeIntoSlot", "Could not paste vector canvas for layer: " & sourceLayerName
+        End If
+        Set pastedShape = NormalizePastedObjectToSingleShape(pastedObject)
+        If pastedShape Is Nothing Then
+            Err.Raise vbObjectError + 584, "PlaceVectorPrintRangeIntoSlot", "Unsupported vector paste result for layer: " & sourceLayerName
+        End If
+
+        If AUTO_ROTATE_TO_SLOT Then appliedRotation = RotateShapeToSlotOrientation(pastedShape, slot, effectiveOrientation)
+        CenterShapeOnPoint pastedShape, slot.CenterX, slot.CenterY
+        If Not hasPlacedShape Then
+            Set MimakiV24_PlaceVectorPrintRangeIntoSlot = pastedShape
+            hasPlacedShape = True
+        End If
+        Set pastedShape = Nothing
+        Set pastedObject = Nothing
+        Set layerRange = Nothing
+        srcDoc.Activate
+    Next layerItem
+
+    ClearTemporaryRasterLayer srcDoc.ActivePage, True
+    srcDoc.ClearSelection
+    If Not hasPlacedShape Then
+        Err.Raise vbObjectError + 585, "PlaceVectorPrintRangeIntoSlot", "No vector artwork was placed."
+    End If
+    Exit Function
+
+EH:
+    localErr = Err.Number
+    localDesc = Err.Description
+    On Error Resume Next
+    If Not tempShape Is Nothing Then tempShape.Delete
+    ClearTemporaryRasterLayer srcDoc.ActivePage, True
+    srcDoc.ClearSelection
+    On Error GoTo 0
+    If localErr = 0 Then localErr = vbObjectError + 586
+    Err.Raise localErr, "PlaceVectorPrintRangeIntoSlot", localDesc
+End Function
+ 
+Public Function BuildSourceLayerRange(ByVal srcDoc As Document, ByVal srcRange As ShapeRange, ByVal sourceLayerName As String) As ShapeRange
+    Dim sh As Shape
+    Dim hasAny As Boolean
+
+    If srcDoc Is Nothing Or srcRange Is Nothing Then Exit Function
+    srcDoc.Activate
+    srcDoc.ClearSelection
+    For Each sh In srcRange.Shapes
+        If IsSourceCandidateShape(sh) Then
+            If StrComp(Trim$(sh.Layer.Name), sourceLayerName, vbTextCompare) = 0 Then
+                If Not hasAny Then
+                    sh.CreateSelection
+                    hasAny = True
+                Else
+                    CallByName sh, "AddToSelection", VbMethod
+                End If
+            End If
+        End If
+    Next sh
+    If hasAny Then Set BuildSourceLayerRange = ActiveSelectionRange
+End Function
